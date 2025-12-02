@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>昆蟲抽籤箱</title>
+
+    <style>
+        /* -------------------------------------- */
+        /* *** 1. 關鍵修正：確保字體路徑正確 (TTF) *** */
+        /* -------------------------------------- */
+        @font-face {
+            font-family: 'BpmfZihiKaiStd-Regular'; 
+            /* *** 修正路徑：假設檔案位於 fonts/ 資料夾中 *** */
+            src: url('BpmfZihiKaiStd-Regular.ttf') format('truetype'); 
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+            /* 2. 確保 body 上套用了字體 */
+            font-family: 'BpmfZihiKaiStd-Regular', 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        #app-container {
+            text-align: center;
+            padding: 30px;
+            background-color: transparent; 
+            box-shadow: none;              
+            border-radius: 15px;
+            /* 3. 確保容器足夠寬以容納長文字 */
+            width: 650px; 
+            max-width: 95%; 
+        }
+
+        .screen {
+            display: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        .screen:not(.active) {
+            display: none;
+        }
+
+        /* 解決文字移動 (視覺穩定性) 的關鍵容器 */
+        #text-container {
+            min-height: 50px; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* 題目文字 (h2) */
+        #question-screen h2 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin: 0; 
+            padding: 0; 
+            background: none;
+            border: none;
+            box-shadow: none;
+            /* 讓它自然流動，依靠 #app-container 的寬度來避免換行 */
+            white-space: normal; 
+            text-overflow: clip; 
+        }
+
+        /* 圖片樣式 */
+        #draw-box-img {
+            width: 200px;
+            margin: 20px 0;
+        }
+        #question-img {
+            max-width: 100%;
+            max-height: 300px;
+            width: auto;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: none;
+        }
+
+        /* 互動區域置中 */
+        #action-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        /* 按鈕樣式 */
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: #98d0de;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+            width: 80%; 
+            max-width: 200px; 
+            align-self: center;
+            
+            /* 4. 確保按鈕強制套用字體 */
+            font-family: 'BpmfZihiKaiStd-Regular', 'Microsoft JhengHei', Arial, sans-serif;
+        }
+
+        button:hover {
+            background-color: #7ab3c4; 
+        }
+
+        /* 答案文字樣式 */
+        .answer-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000000; 
+            margin: 0;
+            padding: 10px;
+            border: 2px dashed #98d0de; 
+            border-radius: 5px;
+            text-align: center;
+            width: 80%;
+        }
+
+        /* 抽籤箱晃動動畫 */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shaking {
+            animation: shake 0.2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app-container">
+        
+        <audio id="draw-sound" src="img/draw.mp3" preload="auto"></audio> 
+        
+        <div id="initial-screen" class="screen active">
+            <h1 id="intro-text">按「開始抽題」</h1>
+            <img id="draw-box-img" src="img/draw_box.png" alt="抽籤箱">
+            <button id="start-draw-btn" onclick="startDraw()">開始抽題</button>
+        </div>
+
+        <div id="question-screen" class="screen">
+            
+            <div id="text-container">
+                <h2 id="question-text"></h2>
+                <p id="answer-text" class="answer-text" style="display: none;"></p>
+            </div>
+            
+            <img id="question-img" src="img/placeholder.png" alt="問題圖片">
+            
+            <div id="action-area">
+                <button id="reveal-answer-btn" onclick="revealAnswer()">揭曉答案</button>
+                <button id="next-draw-btn" onclick="nextDraw()" style="display: none;"></button>
+            </div>
+        </div>
+
+        <div id="end-screen" class="screen">
+            <h1>恭喜找到所有昆蟲！</h1>
+        </div>
+    </div>
+
+    <script>
+
+        // 1. 題目資料結構
+        const allQuestions = [
+            { questionImage: "img/q1.jpg", questionText: "圖中藏著什麼昆蟲？", answerText: "是「枯葉螳螂」！" },
+            { questionImage: "img/q2.jpg", questionText: "猜猜圖中藏著的是什麼昆蟲？", answerText: "是「枯葉蝶」！" },
+            { questionImage: "img/q3.jpg", questionText: "仔細看看，圖中藏著什麼昆蟲？", answerText: "是「竹節蟲」！" },
+            { questionImage: "img/q4.jpg", questionText: "圖中藏著什麼昆蟲？", answerText: "是「蘭花螳螂」！" },
+            { questionImage: "img/q5.jpg", questionText: "藏在圖中的昆蟲是什麼？", answerText: "是「毛毛蟲」！" }
+        ];
+
+        let remainingQuestions = [...allQuestions];
+        let currentQuestion = null;
+
+        // 取得主要元素
+        const drawBoxImg = document.getElementById('draw-box-img');
+        const startBtn = document.getElementById('start-draw-btn');
+        const questionTextH2 = document.getElementById('question-text');
+        const questionImg = document.getElementById('question-img');
+        const revealBtn = document.getElementById('reveal-answer-btn');
+        const answerTextP = document.getElementById('answer-text');
+        const nextBtn = document.getElementById('next-draw-btn');
+        const drawSound = document.getElementById('draw-sound'); 
+
+
+        // 2. 畫面控制函式：切換畫面
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // 3. 流程一：點擊「開始抽題」按鈕
+        function startDraw() {
+            startBtn.style.display = 'none';
+            drawBoxImg.classList.add('shaking');
+            
+            drawSound.currentTime = 0;
+            drawSound.play().catch(e => console.log("音效播放失敗:", e));
+            
+            setTimeout(() => {
+                drawBoxImg.classList.remove('shaking');
+                
+                drawSound.pause(); 
+                
+                if (remainingQuestions.length === 0) {
+                    showScreen('end-screen');
+                    return;
+                }
+
+                currentQuestion = remainingQuestions.shift(); 
+                
+                // 設定題目畫面內容
+                questionTextH2.textContent = currentQuestion.questionText;
+                questionImg.src = currentQuestion.questionImage;
+                
+                // 重設題目畫面狀態
+                questionTextH2.style.display = 'block';
+                answerTextP.style.display = 'none';
+                answerTextP.innerHTML = '';
+
+                revealBtn.style.display = 'block';
+                nextBtn.style.display = 'none';
+                
+                showScreen('question-screen');
+
+            }, 2000);
+        }
+
+        // 4. 流程二：點擊「揭曉答案」按鈕
+        function revealAnswer() {
+            if (!currentQuestion) return;
+
+            questionTextH2.style.display = 'none';
+            answerTextP.innerHTML = currentQuestion.answerText;
+            answerTextP.style.display = 'block';
+            
+            revealBtn.style.display = 'none';
+            
+            if (remainingQuestions.length === 0) {
+                nextBtn.textContent = "恭喜完成";
+            } else {
+                 nextBtn.textContent = "返回抽題";
+            }
+            nextBtn.style.display = 'block';
+        }
+
+        // 5. 流程三：點擊「返回抽題」按鈕
+        function nextDraw() {
+            currentQuestion = null;
+
+            if (remainingQuestions.length === 0) {
+                showScreen('end-screen');
+                return;
+            }
+
+            startBtn.style.display = 'block';
+            
+            showScreen('initial-screen');
+        }
+
+        // 程式啟動時，確保在初始畫面
+        document.addEventListener('DOMContentLoaded', () => {
+            showScreen('initial-screen');
+        });
+    </script>
+</body>
+</html>
