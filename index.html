@@ -159,11 +159,11 @@
 
     <div id="app-container">
         
-        <audio id="draw-sound" src="img/draw.mp3" preload="auto"></audio> 
+        <audio id="draw-sound" src="draw.mp3" preload="auto"></audio> 
         
         <div id="initial-screen" class="screen active">
             <h1 id="intro-text">按「開始抽題」</h1>
-            <img id="draw-box-img" src="img/draw_box.png" alt="抽籤箱">
+            <img id="draw-box-img" src="draw_box.png" alt="抽籤箱">
             <button id="start-draw-btn" onclick="startDraw()">開始抽題</button>
         </div>
 
@@ -174,7 +174,7 @@
                 <p id="answer-text" class="answer-text" style="display: none;"></p>
             </div>
             
-            <img id="question-img" src="img/placeholder.png" alt="問題圖片">
+            <img id="question-img" src="placeholder.png" alt="問題圖片">
             
             <div id="action-area">
                 <button id="reveal-answer-btn" onclick="revealAnswer()">揭曉答案</button>
@@ -191,11 +191,11 @@
 
         // 1. 題目資料結構
         const allQuestions = [
-            { questionImage: "img/q1.jpg", questionText: "圖中藏著什麼昆蟲？", answerText: "是「枯葉螳螂」！" },
-            { questionImage: "img/q2.jpg", questionText: "猜猜圖中藏著的是什麼昆蟲？", answerText: "是「枯葉蝶」！" },
-            { questionImage: "img/q3.jpg", questionText: "仔細看看，圖中藏著什麼昆蟲？", answerText: "是「竹節蟲」！" },
-            { questionImage: "img/q4.jpg", questionText: "圖中藏著什麼昆蟲？", answerText: "是「蘭花螳螂」！" },
-            { questionImage: "img/q5.jpg", questionText: "藏在圖中的昆蟲是什麼？", answerText: "是「毛毛蟲」！" }
+            { questionImage: "q1.jpg", questionText: "圖中藏著什麼昆蟲？", answerText: "是「枯葉螳螂」！" },
+            { questionImage: "q2.jpg", questionText: "猜猜圖中藏著的是什麼昆蟲？", answerText: "是「枯葉蝶」！" },
+            { questionImage: "q3.jpg", questionText: "仔細看看，圖中藏著什麼昆蟲？", answerText: "是「竹節蟲」！" },
+            { questionImage: "q4.jpg", questionText: "圖中藏著什麼昆蟲？", answerText: "是「蘭花螳螂」！" },
+            { questionImage: "q5.jpg", questionText: "藏在圖中的昆蟲是什麼？", answerText: "是「毛毛蟲」！" }
         ];
 
         let remainingQuestions = [...allQuestions];
@@ -295,4 +295,5 @@
         });
     </script>
 </body>
+
 </html>
